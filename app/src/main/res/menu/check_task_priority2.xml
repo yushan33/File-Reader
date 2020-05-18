@@ -5,5 +5,11 @@
     <item
         android:id="@+id/up"
         android:title="@string/copy_file"
+        android:actionMenuTextColor="@color/colorWhite"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/delect"
+        android:title="@string/delect_file"
+        android:actionMenuTextColor="@color/colorWhite"
+        app:showAsAction="always"/>
 </menu>

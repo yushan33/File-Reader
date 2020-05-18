@@ -2,8 +2,14 @@
     <string name="app_name">FileReader</string>
     <string name="is_not_directory">非資料夾</string>
     <string name="can_not_read">無法讀取</string>
-    <string name="directory_can_not_copy">資料夾不能複製喔!</string>
+    <string name="directory_can_not_copy">資料夾不能處理喔!</string>
     <string name="copy_file">複製檔案</string>
     <string name="copy_file_finish">複製檔案成功</string>
     <string name="permission_check">請允許權限不然沒辦法使用喔!</string>
+    <string name="delect_file">刪除檔案</string>
+    <string name="delect_file_content">確定刪除檔案?</string>
+    <string name="delect_file_not">取消刪除檔案</string>
+    <string name="OK">確定</string>
+    <string name="cancle">取消</string>
+    <string name="delect_file_finish">已經刪除檔案</string>
 </resources>
