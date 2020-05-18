@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList <String> paths;
     private ArrayList <FileData> filesList;
     private static final int PERMISSION_REQUEST_STORAGE=30;
-    private static final String ROOT_PATH = "/storage/emulated/0";
+    private static final String ROOT_PATH = Environment.getExternalStorageDirectory().getPath();
     private static final String ROOT_PATH_NAME ="內部記憶體";
     private static final String ROOT_NAME = "回根目錄";
     private static final String PRE_LEVEL ="回上一層";
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private String nowPath="";
     private FileData fileData;
     private File[] files;
-    private Myadapter adapter;
+    private FileAdapter adapter;
     private String[] pictures_type={"jpg","jpeg","gif","png"};
     private String[] video_type={"mp4","mpg4","3gp","avi","asf","m4v","m4u","mpe","mpeg","mpg"};
     private String[] music_type={"mp2","mp3","mpga","ogg","wav","wma","wmv"};
@@ -120,14 +120,17 @@ public class MainActivity extends AppCompatActivity {
 
         files = new File(path).listFiles();
         for(int i=0;i<files.length;i++){
-            names.add(files[i].getName());
-            paths.add(files[i].getPath());
-            if(files[i].isDirectory()){//如果為資料夾
-                fileData=new FileData(files[i].getName(),files[i].getPath(),false,4);
-            }else{
-                fileData=new FileData(files[i].getName(),files[i].getPath(),true,file_type(files[i].getName()));
+            if(!files[i].getName().substring(0,1).equals(".")){
+//                names.add(files[i].getName());
+//                paths.add(files[i].getPath());
+                if(files[i].isDirectory()){//如果為資料夾
+                    fileData=new FileData(files[i].getName(),files[i].getPath(),false,4);
+                }else{
+                    fileData=new FileData(files[i].getName(),files[i].getPath(),true,file_type(files[i].getName()));
+                }
+                filesList.add(fileData);
             }
-            filesList.add(fileData);
+
         }
 
         //排序資料夾與檔案，排除 根目錄 與 上一層 後，先判斷種類後(資料夾、音檔、圖片、影片)，再按照名稱排序
@@ -167,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView(){
-        adapter=new Myadapter(this,filesList,false);
+        adapter=new FileAdapter(MainActivity.this,filesList,false);
         listView=(ListView)findViewById(R.id.listview);
         listView.setAdapter(adapter);
         listView.setMultiChoiceModeListener(new MultiChoiceModeListener(listView));
@@ -189,8 +192,8 @@ public class MainActivity extends AppCompatActivity {
                     File file = new File(target);
                     if(file.canRead()){
                         if(file.isDirectory()){
-                            nowPath = paths.get(position);
-                            getFileDirectory(paths.get(position));
+                            nowPath = filesList.get(position).getFilePath();
+                            getFileDirectory( filesList.get(position).getFilePath());
                             adapter.notifyDataSetChanged();
                             tvNowPath.setText(target);
                         }else{
@@ -209,104 +212,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public class Myadapter extends BaseAdapter {
 
-        private List<FileData> FileList;//資料
-        private LayoutInflater inflater;//加載layout
-        private Boolean mCheckable;
-
-        private class ViewHolder{
-            ImageView image;
-            TextView tv;
-            CheckBox checkBox;
-
-            public ViewHolder(TextView t,ImageView i,CheckBox c){
-                this.image=i;
-                this.tv=t;
-                this.checkBox=c;
-            }
-        }
-
-        public Myadapter(Context context , List<FileData>FileList, Boolean check ){
-            this.inflater =LayoutInflater.from(context);
-            this.FileList =FileList;
-            this.mCheckable=check;
-
-        }
-
-
-        //取得數量
-        @Override
-        public int getCount() {
-            return FileList.size();
-        }
-
-        //取得項目
-        @Override
-        public FileData getItem(int position) {
-            return FileList.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return FileList.indexOf(getItem(position));
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
-            int[] image={R.drawable.ic_music_green_24dp,R.drawable.ic_video_24dp,R.drawable.ic_photo_24dp,
-                    R.drawable.ic_file_24dp,R.drawable.ic_folder_green_24dp};
-            if(convertView==null){
-                convertView = inflater.inflate(R.layout.activity_adapter, null);
-                holder = new ViewHolder(
-                        (TextView)convertView.findViewById(R.id.textView),
-                        (ImageView)convertView.findViewById(R.id.imageView),
-                        (CheckBox)convertView.findViewById(R.id.selected_check_box)
-
-                );
-                convertView.setTag(holder);
-            }else{
-                holder = (ViewHolder) convertView.getTag();
-            }
-
-            final FileData fileData=(FileData)getItem(position);
-
-            holder.tv.setText(fileData.getFileName());
-
-            //可見性選擇狀態
-            if (mCheckable==true) {
-                if(fileData.getIsFile())
-                    holder.checkBox.setVisibility(View.VISIBLE);
-                else
-                    holder.checkBox.setVisibility(View.INVISIBLE);
-            } else {
-                holder.checkBox.setVisibility(View.INVISIBLE);
-            }
-
-            holder.checkBox.setChecked(((ListView) parent).isItemChecked(position));
-
-            if(fileData.getFile_ty()==0)
-                holder.image.setImageResource(image[0]);
-            else if(fileData.getFile_ty()==1)
-                holder.image.setImageResource(image[1]);
-            else if(fileData.getFile_ty()==2)
-                holder.image.setImageResource(image[2]);
-            else if(fileData.getFile_ty()==3)
-                holder.image.setImageResource(image[3]);
-            else if(!fileData.getIsFile())
-                holder.image.setImageResource(image[4]);
-            return convertView;
-        }
-
-        //用来设置是否CheckBox可见
-        public void setCheckable( boolean checkable) {
-            mCheckable = checkable;
-        }
-
-
-
-    }
 
     private class MultiChoiceModeListener implements AbsListView.MultiChoiceModeListener{
         private  ListView mListView;
@@ -333,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this,R.string.directory_can_not_copy,Toast.LENGTH_LONG).show();
             }
 
-            Log.e("check", String.valueOf(adapter.mCheckable));
+
 
         }
 
@@ -414,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private static void copyFileUsingFileStreams(File source, File dest)
+    private static void copyFileUsingFileStreams(File source, File dest)        //複製檔案
             throws IOException {
         InputStream input = null;
         OutputStream output = null;
