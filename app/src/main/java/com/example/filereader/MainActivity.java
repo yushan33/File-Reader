@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                target = paths.get(position);
+                target = filesList.get(position).filePath;
                 if(target.equals(ROOT_PATH)){
                     nowPath =paths.get(position);
                     getFileDirectory(ROOT_PATH);
